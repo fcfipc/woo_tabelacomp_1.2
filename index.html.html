@@ -1,0 +1,1688 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<title>WOO Vendas - Sistema de Bónus</title>
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+:root {
+  --woo-mint: #25D366;
+  --woo-mint-dark: #1DAE55;
+  --woo-yellow: #EEC300;
+  --woo-black: #1a1a2e;
+  --woo-white: #FFFFFF;
+  --woo-gray: #F5F7FA;
+  --woo-border: #E2E8F0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background: var(--woo-gray);
+  min-height: 100vh;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+header {
+  background: var(--woo-white);
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  border-bottom: 2px solid var(--woo-mint);
+}
+
+.switch-user-btn {
+  background: var(--woo-mint);
+  border: none;
+  padding: 12px 20px;
+  border-radius: 30px;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+.current-user {
+  background: var(--woo-gray);
+  padding: 8px 18px;
+  border-radius: 30px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--woo-black);
+}
+
+nav {
+  display: flex;
+  background: var(--woo-white);
+  padding: 10px 12px;
+  gap: 8px;
+  position: sticky;
+  top: 56px;
+  z-index: 99;
+  border-bottom: 1px solid var(--woo-border);
+}
+
+nav button {
+  flex: 1;
+  background: none;
+  border: none;
+  font-size: 14px;
+  padding: 12px 6px;
+  border-radius: 30px;
+  cursor: pointer;
+  font-weight: 600;
+  color: #666;
+  transition: all 0.2s;
+}
+
+nav button.active {
+  background: var(--woo-mint);
+  color: white;
+}
+
+.card {
+  background: var(--woo-white);
+  margin: 12px;
+  padding: 20px;
+  border-radius: 20px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  animation: fadeIn 0.2s ease;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  padding: 12px;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 20px;
+  padding: 16px;
+  text-align: center;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.stat-value {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--woo-mint);
+  margin: 8px 0;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: #666;
+}
+
+.progress-bar {
+  background: #e2e8f0;
+  border-radius: 10px;
+  height: 8px;
+  overflow: hidden;
+  margin: 10px 0;
+}
+
+.progress-fill {
+  background: var(--woo-mint);
+  height: 100%;
+  border-radius: 10px;
+  transition: width 0.3s ease;
+  width: 0%;
+}
+
+.bonus-card {
+  background: #FFFBEB;
+  border-left: 3px solid var(--woo-yellow);
+}
+
+input, select {
+  width: 100%;
+  padding: 14px;
+  margin-top: 8px;
+  margin-bottom: 16px;
+  border-radius: 14px;
+  border: 1.5px solid var(--woo-border);
+  font-size: 15px;
+  background: white;
+}
+
+input:focus, select:focus {
+  border-color: var(--woo-mint);
+  outline: none;
+}
+
+.btn {
+  width: 100%;
+  padding: 18px;
+  border-radius: 16px;
+  border: none;
+  margin-top: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 17px;
+  transition: all 0.2s ease;
+}
+
+.btn-primary {
+  background: var(--woo-mint);
+  color: white;
+}
+
+.btn-success {
+  background: var(--woo-mint);
+  color: white;
+}
+
+.btn-danger {
+  background: #ef4444;
+  color: white;
+}
+
+.btn-warning {
+  background: var(--woo-yellow);
+  color: var(--woo-black);
+}
+
+.btn-small {
+  padding: 14px 20px;
+  font-size: 15px;
+  width: auto;
+  display: inline-block;
+  margin: 6px;
+  border-radius: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+.action-buttons .btn-small {
+  flex: 1;
+  min-width: 100px;
+  text-align: center;
+}
+
+.selector-buttons {
+  display: flex;
+  gap: 12px;
+  margin: 12px 0;
+}
+
+.selector-btn {
+  flex: 1;
+  padding: 18px 12px;
+  background: white;
+  border: 1.5px solid var(--woo-border);
+  border-radius: 16px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #666;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s;
+}
+
+.selector-btn.active {
+  background: var(--woo-mint);
+  border-color: var(--woo-mint);
+  color: white;
+}
+
+.row-2cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.toast {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  right: 20px;
+  background: var(--woo-black);
+  color: white;
+  padding: 14px 20px;
+  border-radius: 50px;
+  animation: fadeIn 0.3s ease;
+  z-index: 1000;
+  text-align: center;
+  font-size: 14px;
+  z-index: 9999;
+}
+
+.fibra-item, .regiao-card, .funcionario-card {
+  background: white;
+  border-radius: 18px;
+  padding: 18px;
+  margin-bottom: 12px;
+  border: 1px solid var(--woo-border);
+}
+
+.item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.item-title {
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--woo-black);
+}
+
+.status-badge {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-pendente { background: #EEC300; color: #231F20; }
+.status-instalado { background: #25D366; color: white; }
+.status-cancelado { background: #ef4444; color: white; }
+
+.login-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, var(--woo-mint) 0%, var(--woo-mint-dark) 100%);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.login-container {
+  background: var(--woo-white);
+  border-radius: 48px;
+  padding: 40px 28px;
+  width: 100%;
+  max-width: 380px;
+  text-align: center;
+  animation: slideUp 0.3s ease-out;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.login-icon {
+  width: 100px;
+  height: 100px;
+  background: linear-gradient(135deg, var(--woo-mint), var(--woo-mint-dark));
+  border-radius: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  animation: float 3s ease-in-out infinite;
+}
+
+.login-icon svg {
+  width: 60px;
+  height: 60px;
+}
+
+.login-container h2 {
+  font-size: 28px;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--woo-mint), var(--woo-mint-dark));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 8px;
+}
+
+.login-subtitle {
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 32px;
+  position: relative;
+}
+
+.login-subtitle::after {
+  content: '';
+  position: absolute;
+  bottom: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 2px;
+  background: var(--woo-yellow);
+  border-radius: 2px;
+}
+
+.vendedor-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.vendedor-btn {
+  width: 100%;
+  padding: 18px 20px;
+  border: none;
+  border-radius: 24px;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  background: var(--woo-gray);
+  color: #333;
+  border: 1px solid var(--woo-border);
+  text-align: left;
+  transition: all 0.2s;
+}
+
+.vendedor-btn:hover {
+  background: var(--woo-mint);
+  color: white;
+  transform: translateY(-2px);
+}
+
+.vendedor-avatar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.vendedor-avatar span:first-child {
+  font-size: 28px;
+}
+
+.pin-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.pin-modal-content {
+  background: var(--woo-white);
+  border-radius: 36px;
+  padding: 32px 24px;
+  width: 100%;
+  max-width: 340px;
+  text-align: center;
+}
+
+.pin-modal-content h3 {
+  font-size: 24px;
+  margin-bottom: 8px;
+  color: var(--woo-black);
+}
+
+.pin-modal-content p {
+  color: #666;
+  margin-bottom: 24px;
+}
+
+.pin-modal-input {
+  text-align: center;
+  letter-spacing: 8px;
+  font-size: 32px;
+  font-weight: 700;
+  padding: 16px;
+  border-radius: 24px;
+  border: 2px solid var(--woo-border);
+  margin-bottom: 24px;
+  width: 100%;
+}
+
+.pin-modal-input:focus {
+  border-color: var(--woo-mint);
+  outline: none;
+}
+
+.pin-modal-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+.pin-modal-buttons button {
+  flex: 1;
+  padding: 16px;
+  border-radius: 20px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.pin-confirm {
+  background: var(--woo-mint);
+  color: white;
+}
+
+.pin-cancel {
+  background: var(--woo-gray);
+  color: #333;
+  border: 1px solid var(--woo-border);
+}
+
+.report-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+}
+
+.report-table th, .report-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--woo-border);
+}
+
+.report-table th {
+  background: var(--woo-gray);
+  font-weight: 600;
+}
+
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.checkbox-group input {
+  width: auto;
+  margin: 0;
+}
+
+.meta-config {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+@media (max-width: 480px) {
+  .stats-grid { grid-template-columns: 1fr; gap: 10px; }
+  .row-2cols { grid-template-columns: 1fr; gap: 0; }
+  nav button { font-size: 12px; padding: 10px 4px; }
+  .stat-value { font-size: 28px; }
+  .selector-btn { padding: 14px 8px; font-size: 14px; }
+  .login-container { padding: 32px 20px; }
+  .vendedor-btn { padding: 16px; font-size: 15px; }
+  .btn { padding: 16px; font-size: 16px; }
+  .btn-small { padding: 12px 16px; font-size: 14px; }
+  .action-buttons .btn-small { min-width: 80px; }
+}
+</style>
+</head>
+
+<body>
+<div id="app"></div>
+
+<script>
+// ==================== DADOS INICIAIS ====================
+const VENDEDORES_PADRAO = {
+  admin: { id: 'admin', nome: 'Administrador', pin: '0000', tipo: 'admin', ativo: true },
+  joao: { id: 'joao', nome: 'João Silva', pin: '1234', tipo: 'vendedor', ativo: true },
+  maria: { id: 'maria', nome: 'Maria Santos', pin: '5678', tipo: 'vendedor', ativo: true }
+};
+
+let currentUser = null;
+let vendedoresList = JSON.parse(localStorage.getItem('woo_vendedores')) || JSON.parse(JSON.stringify(VENDEDORES_PADRAO));
+let vendasList = JSON.parse(localStorage.getItem('woo_vendas')) || [];
+let fibraList = JSON.parse(localStorage.getItem('woo_fibra')) || [];
+let regioesList = JSON.parse(localStorage.getItem('woo_regioes')) || [];
+let diasExtrasList = JSON.parse(localStorage.getItem('woo_dias_extras')) || {};
+
+let COMISSAO_PACOTE = { P1: 5, P2: 7, P3: 9 };
+
+let CONFIGURACOES = JSON.parse(localStorage.getItem('woo_configuracoes')) || {
+  bonusFibra: {
+    meta11: { fibras: 11, bonus: 200, ativo: true },
+    meta20: { fibras: 20, bonus: 500, ativo: true }
+  },
+  comissaoChip: 0.50,
+  comissaoApp: 0.50,
+  salarioBase: 750,
+  diasObrigatorios: 22,
+  ativarDiasExtras: true,
+  percentagensSalario: [
+    { min: 0, max: 70, salario: 750 },
+    { min: 71, max: 80, salario: 850 },
+    { min: 81, max: 90, salario: 950 },
+    { min: 91, max: 100, salario: 1050 },
+    { min: 101, max: 110, salario: 1150 }
+  ]
+};
+
+function salvarDados() {
+  localStorage.setItem('woo_vendedores', JSON.stringify(vendedoresList));
+  localStorage.setItem('woo_vendas', JSON.stringify(vendasList));
+  localStorage.setItem('woo_fibra', JSON.stringify(fibraList));
+  localStorage.setItem('woo_regioes', JSON.stringify(regioesList));
+  localStorage.setItem('woo_dias_extras', JSON.stringify(diasExtrasList));
+  localStorage.setItem('woo_configuracoes', JSON.stringify(CONFIGURACOES));
+}
+
+function showToast(msg) {
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.innerHTML = msg;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 2500);
+}
+
+function getMetaMensalTotal() {
+  let total = 0;
+  regioesList.forEach(r => {
+    if (r.ativo !== false) total += (r.metaDiaria || 0) * (r.diasTrabalhados || 0);
+  });
+  return total;
+}
+
+function calcularSalarioBase(percentagem) {
+  for (const nivel of CONFIGURACOES.percentagensSalario) {
+    if (percentagem >= nivel.min && percentagem <= nivel.max) return nivel.salario;
+  }
+  return CONFIGURACOES.salarioBase;
+}
+
+function getValorDiaria() {
+  return CONFIGURACOES.salarioBase / CONFIGURACOES.diasObrigatorios;
+}
+
+function getDiasExtras(vendedorId) {
+  const mesAtual = new Date().toLocaleString('pt-PT', { month: 'numeric', year: 'numeric' });
+  const key = `${vendedorId}_${mesAtual}`;
+  return diasExtrasList[key] || 0;
+}
+
+function setDiasExtras(vendedorId, dias) {
+  const mesAtual = new Date().toLocaleString('pt-PT', { month: 'numeric', year: 'numeric' });
+  const key = `${vendedorId}_${mesAtual}`;
+  diasExtrasList[key] = Math.max(0, dias);
+  salvarDados();
+}
+
+function getBonusDiasExtras(vendedorId) {
+  if (!CONFIGURACOES.ativarDiasExtras) return 0;
+  const diasExtras = getDiasExtras(vendedorId);
+  const valorDiaria = getValorDiaria();
+  return diasExtras * valorDiaria;
+}
+
+function calcularBonusFibra(fibrasInstaladas, chipsVendidos, appsInstalados, fibrasComPacote) {
+  let bonusTotal = 0;
+  let metas = [];
+  
+  const comissaoChips = chipsVendidos * CONFIGURACOES.comissaoChip;
+  const comissaoApps = appsInstalados * CONFIGURACOES.comissaoApp;
+  
+  let comissaoPacotes = 0;
+  fibrasComPacote.forEach(pacote => {
+    comissaoPacotes += COMISSAO_PACOTE[pacote] || 0;
+  });
+  
+  const comissaoTotal = comissaoChips + comissaoApps + comissaoPacotes;
+  
+  if (CONFIGURACOES.bonusFibra.meta11.ativo && fibrasInstaladas >= CONFIGURACOES.bonusFibra.meta11.fibras) {
+    let valor = CONFIGURACOES.bonusFibra.meta11.bonus + comissaoTotal;
+    bonusTotal += valor;
+    metas.push({ 
+      meta: `${CONFIGURACOES.bonusFibra.meta11.fibras} Fibras`, 
+      valor: valor,
+      detalhes: `Bónus base: €${CONFIGURACOES.bonusFibra.meta11.bonus} + Comissões: €${comissaoTotal.toFixed(2)}`
+    });
+  }
+  
+  if (CONFIGURACOES.bonusFibra.meta20.ativo && fibrasInstaladas >= CONFIGURACOES.bonusFibra.meta20.fibras) {
+    let valor = CONFIGURACOES.bonusFibra.meta20.bonus + comissaoTotal;
+    bonusTotal += valor;
+    metas.push({ 
+      meta: `${CONFIGURACOES.bonusFibra.meta20.fibras} Fibras`, 
+      valor: valor,
+      detalhes: `Bónus base: €${CONFIGURACOES.bonusFibra.meta20.bonus} + Comissões: €${comissaoTotal.toFixed(2)}`
+    });
+  }
+  
+  return { bonusTotal, metas };
+}
+
+// ==================== DASHBOARD ====================
+function renderDashboard() {
+  const content = document.getElementById('main-content');
+  if (!content) return;
+  
+  const now = new Date();
+  const mesAtual = now.getMonth();
+  const anoAtual = now.getFullYear();
+  
+  let chipsVendidosMes = 0;
+  let appsInstaladosMes = 0;
+  vendasList.forEach(v => {
+    const data = new Date(v.dataCompleta);
+    if (data.getMonth() === mesAtual && data.getFullYear() === anoAtual) {
+      chipsVendidosMes += v.quantidade;
+      if (v.appInstalado) appsInstaladosMes += v.quantidade;
+    }
+  });
+  
+  let fibrasInstaladas = 0;
+  let fibrasComPacote = [];
+  fibraList.forEach(f => {
+    if (f.status === 'Instalado') {
+      fibrasInstaladas++;
+      fibrasComPacote.push(f.pacote);
+    }
+  });
+  
+  const metaTotal = getMetaMensalTotal();
+  const percentagem = metaTotal > 0 ? (chipsVendidosMes / metaTotal) * 100 : 0;
+  const salarioBase = calcularSalarioBase(percentagem);
+  const bonusDiasExtras = getBonusDiasExtras(currentUser.id);
+  const salarioComExtras = salarioBase + bonusDiasExtras;
+  const bonusFibra = calcularBonusFibra(fibrasInstaladas, chipsVendidosMes, appsInstaladosMes, fibrasComPacote);
+  const salarioTotal = salarioComExtras + bonusFibra.bonusTotal;
+  const diasExtras = getDiasExtras(currentUser.id);
+  const valorDiaria = getValorDiaria();
+  
+  content.innerHTML = `
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value">${chipsVendidosMes}</div>
+        <div class="stat-label">📱 Chips Vendidos</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${Math.min(percentagem,110)}%"></div></div>
+        <div class="stat-label">Meta: ${metaTotal} (${percentagem.toFixed(1)}%)</div>
+        <div class="stat-label">📲 Apps Instalados: ${appsInstaladosMes}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">${fibrasInstaladas}</div>
+        <div class="stat-label">🌐 Fibras Instaladas</div>
+        <div class="stat-label">🎯 Meta ${CONFIGURACOES.bonusFibra.meta11.fibras}: ${CONFIGURACOES.bonusFibra.meta11.ativo ? '✅ Ativa' : '❌ Inativa'}</div>
+        <div class="stat-label">🎯 Meta ${CONFIGURACOES.bonusFibra.meta20.fibras}: ${CONFIGURACOES.bonusFibra.meta20.ativo ? '✅ Ativa' : '❌ Inativa'}</div>
+      </div>
+      <div class="stat-card bonus-card">
+        <div class="stat-value">${percentagem.toFixed(1)}%</div>
+        <div class="stat-label">Percentagem da Meta</div>
+        <div class="stat-label">💰 Salário Base: €${salarioBase.toFixed(2)}</div>
+        ${CONFIGURACOES.ativarDiasExtras && diasExtras > 0 ? `<div class="stat-label">📅 Dias extras: ${diasExtras} (+€${bonusDiasExtras.toFixed(2)})</div>` : ''}
+        <div class="stat-label">💵 Salário com extras: €${salarioComExtras.toFixed(2)}</div>
+      </div>
+      <div class="stat-card bonus-card">
+        <div class="stat-value">€${bonusFibra.bonusTotal.toFixed(2)}</div>
+        <div class="stat-label">💳 Cartão Dá</div>
+        ${bonusFibra.metas.map(m => `<div class="stat-label">✓ ${m.meta}: +€${m.valor.toFixed(2)}<br><small style="font-size:10px;">${m.detalhes}</small></div>`).join('')}
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">€${salarioTotal.toFixed(2)}</div>
+        <div class="stat-label">💰 Salário Total do Mês</div>
+        <div class="stat-label">📊 = Salário com extras + Cartão Dá</div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>📊 Tabela de Percentagem</h3>
+      <div id="tabelaPercentagens"></div>
+      ${currentUser && currentUser.tipo === 'admin' ? '<button class="btn-warning btn-small" id="btnEditarPercentagens" style="margin-top:12px;">✏️ Editar Tabela</button>' : ''}
+    </div>
+  `;
+  
+  const container = document.getElementById('tabelaPercentagens');
+  if (container) {
+    container.innerHTML = CONFIGURACOES.percentagensSalario.map(n => `
+      <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #eee;">
+        <span>${n.min}% - ${n.max}%</span>
+        <span style="color:#25D366;font-weight:bold;">€${n.salario}</span>
+      </div>
+    `).join('');
+  }
+  
+  const btnEditar = document.getElementById('btnEditarPercentagens');
+  if (btnEditar) {
+    btnEditar.onclick = () => abrirEditorPercentagens();
+  }
+}
+
+function abrirEditorPercentagens() {
+  const modal = document.createElement('div');
+  modal.className = 'pin-modal';
+  modal.innerHTML = `
+    <div class="pin-modal-content" style="max-width: 450px;">
+      <h3>✏️ Editar Tabela de Percentagem</h3>
+      <div id="editorLista" style="max-height: 400px; overflow-y: auto; margin-bottom: 20px;"></div>
+      <div class="pin-modal-buttons">
+        <button class="pin-cancel" id="btnCancelarEditor">Cancelar</button>
+        <button class="pin-confirm" id="btnSalvarEditor">Salvar</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  
+  const editorLista = document.getElementById('editorLista');
+  editorLista.innerHTML = CONFIGURACOES.percentagensSalario.map((n, i) => `
+    <div style="display:flex;gap:8px;margin-bottom:8px;">
+      <input type="number" id="editMin${i}" value="${n.min}" placeholder="Mín %" style="width:80px">
+      <span>a</span>
+      <input type="number" id="editMax${i}" value="${n.max}" placeholder="Máx %" style="width:80px">
+      <input type="number" id="editSal${i}" value="${n.salario}" placeholder="€" style="width:100px">
+    </div>
+  `).join('');
+  editorLista.innerHTML += `<button class="btn-primary btn-small" id="btnAdicionarLinha" style="margin-top:12px;">➕ Adicionar Faixa</button>`;
+  
+  document.getElementById('btnCancelarEditor').onclick = () => {
+    modal.remove();
+  };
+  document.getElementById('btnSalvarEditor').onclick = () => {
+    const novas = [];
+    for (let i = 0; i < CONFIGURACOES.percentagensSalario.length; i++) {
+      const min = document.getElementById(`editMin${i}`)?.value;
+      const max = document.getElementById(`editMax${i}`)?.value;
+      const sal = document.getElementById(`editSal${i}`)?.value;
+      if (min !== undefined) novas.push({ min: Number(min), max: Number(max), salario: Number(sal) });
+    }
+    CONFIGURACOES.percentagensSalario = novas.sort((a,b) => a.min - b.min);
+    salvarDados();
+    showToast("✅ Tabela atualizada!");
+    modal.remove();
+    renderDashboard();
+  };
+  document.getElementById('btnAdicionarLinha').onclick = () => {
+    CONFIGURACOES.percentagensSalario.push({ min: 0, max: 0, salario: 0 });
+    modal.remove();
+    abrirEditorPercentagens();
+  };
+}
+
+// ==================== VENDAS ====================
+function renderVendas() {
+  const content = document.getElementById('main-content');
+  let planoSelecionado = "100GB";
+  let pagamentoSelecionado = "Dinheiro";
+  
+  const vendasFiltradas = currentUser && currentUser.tipo === 'admin' ? vendasList : vendasList.filter(v => v.vendedor === currentUser?.id);
+  
+  content.innerHTML = `
+    <div class="card">
+      <h3>📱 Registrar Venda</h3>
+      <input type="number" id="qtdVenda" placeholder="Quantidade" value="1">
+      <div class="selector-buttons">
+        <button id="btn100GB" class="selector-btn active">100GB</button>
+        <button id="btnIlimitado" class="selector-btn">Ilimitado</button>
+      </div>
+      <div class="selector-buttons">
+        <button id="btnDinheiro" class="selector-btn active">Dinheiro</button>
+        <button id="btnMultibanco" class="selector-btn">Multibanco</button>
+      </div>
+      <div class="checkbox-group" style="margin: 12px 0;">
+        <input type="checkbox" id="chkAppInstalado">
+        <label for="chkAppInstalado" style="margin:0;">📲 App do cartão instalado (+€${CONFIGURACOES.comissaoApp} por chip)</label>
+      </div>
+      <button class="btn btn-primary" id="btnRegistrarVenda">💰 Registrar Venda</button>
+    </div>
+    <div class="card">
+      <h3>📋 Últimas Vendas</h3>
+      <div id="vendasList"></div>
+    </div>
+  `;
+  
+  document.getElementById('btn100GB').onclick = () => {
+    planoSelecionado = '100GB';
+    document.getElementById('btn100GB').classList.add('active');
+    document.getElementById('btnIlimitado').classList.remove('active');
+  };
+  document.getElementById('btnIlimitado').onclick = () => {
+    planoSelecionado = 'Ilimitado';
+    document.getElementById('btnIlimitado').classList.add('active');
+    document.getElementById('btn100GB').classList.remove('active');
+  };
+  document.getElementById('btnDinheiro').onclick = () => {
+    pagamentoSelecionado = 'Dinheiro';
+    document.getElementById('btnDinheiro').classList.add('active');
+    document.getElementById('btnMultibanco').classList.remove('active');
+  };
+  document.getElementById('btnMultibanco').onclick = () => {
+    pagamentoSelecionado = 'Multibanco';
+    document.getElementById('btnMultibanco').classList.add('active');
+    document.getElementById('btnDinheiro').classList.remove('active');
+  };
+  
+  document.getElementById('btnRegistrarVenda').onclick = () => {
+    const qtd = document.getElementById('qtdVenda').value;
+    const appInstaladoCheck = document.getElementById('chkAppInstalado').checked;
+    if (!qtd || qtd <= 0) { showToast("Quantidade inválida!"); return; }
+    
+    const novaVenda = {
+      id: Date.now(),
+      quantidade: Number(qtd),
+      plano: planoSelecionado,
+      pagamento: pagamentoSelecionado,
+      appInstalado: appInstaladoCheck,
+      vendedor: currentUser.id,
+      vendedorNome: currentUser.nome,
+      data: new Date().toLocaleDateString('pt-PT'),
+      dataCompleta: new Date().toISOString(),
+      mes: new Date().getMonth()+1,
+      ano: new Date().getFullYear(),
+      createdAt: new Date()
+    };
+    vendasList.unshift(novaVenda);
+    salvarDados();
+    showToast(`✅ ${qtd} chip(s) vendido(s)!${appInstaladoCheck ? ' App instalado!' : ''}`);
+    document.getElementById('qtdVenda').value = '1';
+    document.getElementById('chkAppInstalado').checked = false;
+    renderVendas();
+    if (document.getElementById('navDash')) document.getElementById('navDash').click();
+  };
+  
+  const listaDiv = document.getElementById('vendasList');
+  if (!listaDiv) return;
+  if (vendasFiltradas.length === 0) {
+    listaDiv.innerHTML = '<div style="text-align:center;padding:20px;color:#666;">Nenhuma venda registrada</div>';
+  } else {
+    listaDiv.innerHTML = vendasFiltradas.slice(0, 20).map(v => `
+      <div style="display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid #eee;">
+        <div>
+          <strong>📱 ${v.quantidade} chip(s)</strong><br>
+          <small>${v.plano} | ${v.pagamento}</small>
+          ${v.appInstalado ? '<br><small>📲 App instalado</small>' : ''}
+        </div>
+        <div><small>${v.data || ''}</small></div>
+      </div>
+    `).join('');
+  }
+}
+
+// ==================== FIBRA ====================
+function renderFibra() {
+  const content = document.getElementById('main-content');
+  const fibraFiltrada = currentUser && currentUser.tipo === 'admin' ? fibraList : fibraList.filter(f => f.vendedor === currentUser?.id);
+  
+  content.innerHTML = `
+    <div class="card">
+      <h3>🌐 Nova Solicitação de Fibra</h3>
+      <input id="fibraNome" placeholder="Nome do Cliente *">
+      <input id="fibraNIF" placeholder="NIF *" maxlength="9">
+      <input id="fibraContato" placeholder="Telefone/WhatsApp *">
+      <input id="fibraMorada" placeholder="Morada *">
+      <div class="row-2cols">
+        <input id="fibraNumero" placeholder="Número da Porta *">
+        <input id="fibraAndar" placeholder="Andar (opcional)">
+      </div>
+      <select id="fibraPacote">
+        <option value="P1">P1 - Comissão €5</option>
+        <option value="P2">P2 - Comissão €7</option>
+        <option value="P3">P3 - Comissão €9</option>
+      </select>
+      <button class="btn btn-primary" id="btnSolicitarFibra">📝 Solicitar Fibra</button>
+    </div>
+    <div class="card">
+      <h3>📋 Solicitações de Fibra</h3>
+      <div id="fibraList"></div>
+    </div>
+  `;
+  
+  document.getElementById('btnSolicitarFibra').onclick = () => {
+    const nome = document.getElementById('fibraNome').value;
+    const nif = document.getElementById('fibraNIF').value;
+    const contato = document.getElementById('fibraContato').value;
+    const morada = document.getElementById('fibraMorada').value;
+    const numero = document.getElementById('fibraNumero').value;
+    const andar = document.getElementById('fibraAndar').value;
+    const pacote = document.getElementById('fibraPacote').value;
+    
+    if (!nome || !nif || !contato || !morada || !numero) { showToast("Preencha todos os campos obrigatórios (*)!"); return; }
+    if (nif.length !== 9) { showToast("NIF deve ter 9 dígitos!"); return; }
+    
+    const enderecoCompleto = `${morada}, ${numero}${andar ? ', ' + andar : ''}`;
+    
+    const novaFibra = {
+      id: Date.now(),
+      nome, nif, contato, morada, numero, andar: andar || '', enderecoCompleto, pacote,
+      status: "Solicitado", vendedor: currentUser.id, vendedorNome: currentUser.nome,
+      data: new Date().toLocaleDateString('pt-PT'), createdAt: new Date()
+    };
+    fibraList.unshift(novaFibra);
+    salvarDados();
+    showToast("✅ Solicitação de fibra enviada!");
+    document.getElementById('fibraNome').value = '';
+    document.getElementById('fibraNIF').value = '';
+    document.getElementById('fibraContato').value = '';
+    document.getElementById('fibraMorada').value = '';
+    document.getElementById('fibraNumero').value = '';
+    document.getElementById('fibraAndar').value = '';
+    renderFibra();
+  };
+  
+  window.atualizarStatusFibra = function(id, status) {
+    const index = fibraList.findIndex(f => f.id == id);
+    if (index !== -1) {
+      fibraList[index].status = status;
+      salvarDados();
+      showToast(`Status atualizado para ${status}`);
+      renderFibra();
+      if (document.getElementById('navDash')) document.getElementById('navDash').click();
+    }
+  };
+  
+  const listaDiv = document.getElementById('fibraList');
+  if (!listaDiv) return;
+  if (fibraFiltrada.length === 0) {
+    listaDiv.innerHTML = '<div style="text-align:center;padding:20px;color:#666;">Nenhuma solicitação de fibra</div>';
+  } else {
+    listaDiv.innerHTML = fibraFiltrada.map(f => {
+      const status = f.status || 'Solicitado';
+      const comissao = COMISSAO_PACOTE[f.pacote] || 0;
+      return `<div class="fibra-item">
+        <div class="item-header">
+          <span class="item-title">${f.nome}</span>
+          <span class="status-badge status-${status === 'Instalado' ? 'instalado' : status === 'Cancelado' ? 'cancelado' : 'pendente'}">
+            ${status === 'Instalado' ? '✅ Instalado' : status === 'Cancelado' ? '❌ Cancelado' : '⏳ Pendente'}
+          </span>
+        </div>
+        <div>📞 ${f.contato} | 🆔 NIF: ${f.nif}</div>
+        <div>📍 ${f.enderecoCompleto}</div>
+        <div>📡 Pacote: ${f.pacote} (Comissão: €${comissao})</div>
+        <div>📅 ${f.data}</div>
+        <div class="action-buttons">
+          ${status !== 'Instalado' ? `<button class="btn-success btn-small" onclick="atualizarStatusFibra(${f.id},'Instalado')">✅ Instalar</button>` : ''}
+          ${status !== 'Cancelado' && status !== 'Instalado' ? `<button class="btn-danger btn-small" onclick="atualizarStatusFibra(${f.id},'Cancelado')">❌ Cancelar</button>` : ''}
+          ${status === 'Cancelado' ? `<button class="btn-primary btn-small" onclick="atualizarStatusFibra(${f.id},'Solicitado')">🔄 Reativar</button>` : ''}
+        </div>
+      </div>`;
+    }).join('');
+  }
+}
+
+// ==================== REGIÕES E DIAS EXTRAS ====================
+function renderRegioes() {
+  const content = document.getElementById('main-content');
+  let editId = null;
+  
+  const diasExtrasAtuais = getDiasExtras(currentUser.id);
+  const valorDiaria = getValorDiaria();
+  
+  content.innerHTML = `
+    <div class="card">
+      <h3>📍 Adicionar/Editar Região</h3>
+      <input id="regNome" placeholder="Nome da Região">
+      <input id="regDias" type="number" placeholder="Dias Trabalhados" value="22">
+      <input id="regMeta" type="number" placeholder="Meta Diária">
+      <button class="btn btn-primary" id="btnSaveRegiao">➕ Adicionar Região</button>
+    </div>
+    ${CONFIGURACOES.ativarDiasExtras ? `
+    <div class="card">
+      <h3>📅 Dias Extras Trabalhados</h3>
+      <p style="color:#666; margin-bottom:12px;">Valor por dia extra: €${valorDiaria.toFixed(2)} (calculado com base no salário base de €${CONFIGURACOES.salarioBase} ÷ ${CONFIGURACOES.diasObrigatorios} dias)</p>
+      <div class="row-2cols">
+        <div>
+          <label>Dias extras este mês:</label>
+          <input type="number" id="diasExtrasInput" value="${diasExtrasAtuais}" min="0" max="31" step="1">
+        </div>
+        <div style="display: flex; align-items: flex-end;">
+          <button class="btn btn-primary" id="btnSalvarDiasExtras">💾 Salvar Dias Extras</button>
+        </div>
+      </div>
+      <div style="margin-top:12px; padding:12px; background:#f0fdf4; border-radius:12px;">
+        <strong>📊 Cálculo:</strong><br>
+        €${CONFIGURACOES.salarioBase} ÷ ${CONFIGURACOES.diasObrigatorios} = €${valorDiaria.toFixed(2)} por dia<br>
+        ${diasExtrasAtuais} dias extras × €${valorDiaria.toFixed(2)} = <strong style="color:#25D366;">€${(diasExtrasAtuais * valorDiaria).toFixed(2)}</strong> adicionado ao salário
+      </div>
+    </div>
+    ` : ''}
+    <div class="card">
+      <h3>📋 Regiões Cadastradas</h3>
+      <div id="regioesList"></div>
+    </div>
+  `;
+  
+  function carregarRegioesUI() {
+    const div = document.getElementById('regioesList');
+    if (!div) return;
+    if (regioesList.length === 0) {
+      div.innerHTML = '<div style="text-align:center;padding:20px;color:#666;">Nenhuma região cadastrada</div>';
+    } else {
+      div.innerHTML = regioesList.map(r => {
+        const totalMeta = (r.metaDiaria || 0) * (r.diasTrabalhados || 0);
+        return `<div class="regiao-card">
+          <div class="item-header">
+            <span class="item-title">📍 ${r.nome}</span>
+            <span class="status-badge" style="background:${r.ativo !== false ? '#25D366' : '#ef4444'}; color:white;">${r.ativo !== false ? 'Ativo' : 'Inativo'}</span>
+          </div>
+          <div>🎯 Meta Diária: ${r.metaDiaria || 0} chips</div>
+          <div>📅 Dias trabalhados: ${r.diasTrabalhados || 0} dias</div>
+          <div>📊 Total mensal: ${totalMeta} chips</div>
+          <div class="action-buttons">
+            <button class="btn-primary btn-small" onclick="editarRegiao('${r.id}','${r.nome}',${r.diasTrabalhados},${r.metaDiaria})">✏️ Editar</button>
+            <button class="btn-warning btn-small" onclick="toggleRegiao('${r.id}',${!r.ativo})">${r.ativo !== false ? '🔴 Desativar' : '🟢 Ativar'}</button>
+            <button class="btn-danger btn-small" onclick="delRegiao('${r.id}')">🗑️ Excluir</button>
+          </div>
+        </div>`;
+      }).join('');
+    }
+  }
+  
+  document.getElementById('btnSaveRegiao').onclick = () => {
+    const nome = document.getElementById('regNome').value;
+    const dias = Number(document.getElementById('regDias').value);
+    const meta = Number(document.getElementById('regMeta').value);
+    if (!nome || !dias || !meta) { showToast("Preencha todos os campos!"); return; }
+    if (editId) {
+      const index = regioesList.findIndex(r => r.id == editId);
+      if (index !== -1) {
+        regioesList[index] = { ...regioesList[index], nome, diasTrabalhados: dias, metaDiaria: meta };
+      }
+      editId = null;
+      document.getElementById('btnSaveRegiao').innerHTML = '➕ Adicionar Região';
+    } else {
+      regioesList.push({ id: Date.now(), nome, diasTrabalhados: dias, metaDiaria: meta, ativo: true });
+    }
+    salvarDados();
+    showToast("✅ Região salva!");
+    document.getElementById('regNome').value = '';
+    document.getElementById('regDias').value = '22';
+    document.getElementById('regMeta').value = '';
+    carregarRegioesUI();
+  };
+  
+  if (CONFIGURACOES.ativarDiasExtras) {
+    document.getElementById('btnSalvarDiasExtras').onclick = () => {
+      const novosDias = Number(document.getElementById('diasExtrasInput').value);
+      if (isNaN(novosDias)) { showToast("Valor inválido!"); return; }
+      setDiasExtras(currentUser.id, novosDias);
+      showToast(`✅ Dias extras atualizados para ${novosDias}`);
+      renderRegioes();
+      if (document.getElementById('navDash')) document.getElementById('navDash').click();
+    };
+  }
+  
+  window.editarRegiao = function(id, nome, dias, meta) {
+    editId = id;
+    document.getElementById('regNome').value = nome;
+    document.getElementById('regDias').value = dias;
+    document.getElementById('regMeta').value = meta;
+    document.getElementById('btnSaveRegiao').innerHTML = '✏️ Atualizar Região';
+  };
+  
+  window.toggleRegiao = function(id, ativar) {
+    const index = regioesList.findIndex(r => r.id == id);
+    if (index !== -1) {
+      regioesList[index].ativo = ativar;
+      salvarDados();
+      showToast(ativar ? "Região ativada!" : "Região desativada!");
+      carregarRegioesUI();
+    }
+  };
+  
+  window.delRegiao = function(id) {
+    if (confirm("Excluir esta região?")) {
+      regioesList = regioesList.filter(r => r.id != id);
+      salvarDados();
+      showToast("Região excluída!");
+      carregarRegioesUI();
+    }
+  };
+  
+  carregarRegioesUI();
+}
+
+// ==================== RELATÓRIOS ====================
+function renderRelatorios() {
+  const content = document.getElementById('main-content');
+  content.innerHTML = `
+    <div class="card">
+      <h3>📊 Relatórios de Vendas</h3>
+      <div class="row-2cols">
+        <div>
+          <label>👤 Funcionário:</label>
+          <select id="relatorioVendedor">
+            <option value="todos">📊 Todos os funcionários</option>
+            ${Object.values(vendedoresList).filter(v => v.id !== 'admin' && v.ativo !== false).map(v => `<option value="${v.id}">👤 ${v.nome}</option>`).join('')}
+          </select>
+        </div>
+        <div>
+          <label>📅 Período:</label>
+          <select id="relatorioPeriodo">
+            <option value="mensal">📆 Relatório Mensal</option>
+            <option value="anual">📈 Relatório Anual</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn btn-primary" id="btnGerarRelatorio">🔍 Gerar Relatório</button>
+    </div>
+    <div id="relatorioResultado" class="card">
+      <div style="text-align:center;padding:40px;color:#666;">Selecione os filtros e clique em Gerar Relatório</div>
+    </div>
+  `;
+  
+  document.getElementById('btnGerarRelatorio').onclick = () => {
+    const vendedorId = document.getElementById('relatorioVendedor').value;
+    const periodo = document.getElementById('relatorioPeriodo').value;
+    const vendedorNome = vendedorId === 'todos' ? 'Todos os Funcionários' : vendedoresList[vendedorId]?.nome || 'Funcionário';
+    if (periodo === 'mensal') gerarRelatorioMensal(vendedorId, vendedorNome);
+    else gerarRelatorioAnual(vendedorId, vendedorNome);
+  };
+}
+
+function gerarRelatorioMensal(vendedorId, vendedorNome) {
+  const dadosPorMes = {};
+  let vendasFiltradas = vendasList;
+  if (vendedorId !== 'todos') vendasFiltradas = vendasList.filter(v => v.vendedor === vendedorId);
+  
+  vendasFiltradas.forEach(v => {
+    const data = new Date(v.dataCompleta);
+    const key = `${data.getFullYear()}/${data.getMonth()+1}`;
+    if (!dadosPorMes[key]) dadosPorMes[key] = { total: 0, quantidade: 0 };
+    dadosPorMes[key].total += v.quantidade;
+    dadosPorMes[key].quantidade += 1;
+  });
+  
+  const fibrasPorMes = {};
+  let fibrasFiltradas = fibraList.filter(f => f.status === 'Instalado');
+  if (vendedorId !== 'todos') fibrasFiltradas = fibrasFiltradas.filter(f => f.vendedor === vendedorId);
+  fibrasFiltradas.forEach(f => {
+    const data = new Date(f.createdAt);
+    const key = `${data.getFullYear()}/${data.getMonth()+1}`;
+    fibrasPorMes[key] = (fibrasPorMes[key] || 0) + 1;
+  });
+  
+  const mesesOrdenados = Object.keys(dadosPorMes).sort().reverse();
+  let html = `<h3>📊 Relatório Mensal - ${vendedorNome}</h3><table class="report-table"><thead><tr><th>Mês/Ano</th><th>Total Chips</th><th>Vendas</th><th>Fibras</th><th>Média</th></td></thead><tbody>`;
+  let totalGeral = 0, totalFibras = 0;
+  for (const mes of mesesOrdenados) {
+    const dados = dadosPorMes[mes];
+    const fibras = fibrasPorMes[mes] || 0;
+    const media = dados.quantidade > 0 ? (dados.total / dados.quantidade).toFixed(1) : 0;
+    totalGeral += dados.total;
+    totalFibras += fibras;
+    html += `<tr><td>${mes}</td><td><strong>${dados.total}</strong></td><td>${dados.quantidade}</td><td>${fibras}</td><td>${media}<tr>=`;
+  }
+  html += `</tbody><tfoot><tr style="background:#f0fdf4;"><td><strong>TOTAL</strong></td><td><strong>${totalGeral}</strong></td><td>${vendasFiltradas.length}</td><td><strong>${totalFibras}</strong></td><td>-</td></tr></tfoot></table>`;
+  document.getElementById('relatorioResultado').innerHTML = html;
+}
+
+function gerarRelatorioAnual(vendedorId, vendedorNome) {
+  const dadosPorAno = {}, fibrasPorAno = {};
+  let vendasFiltradas = vendasList;
+  if (vendedorId !== 'todos') vendasFiltradas = vendasList.filter(v => v.vendedor === vendedorId);
+  vendasFiltradas.forEach(v => { const ano = new Date(v.dataCompleta).getFullYear(); dadosPorAno[ano] = (dadosPorAno[ano] || 0) + v.quantidade; });
+  let fibrasFiltradas = fibraList.filter(f => f.status === 'Instalado');
+  if (vendedorId !== 'todos') fibrasFiltradas = fibrasFiltradas.filter(f => f.vendedor === vendedorId);
+  fibrasFiltradas.forEach(f => { const ano = new Date(f.createdAt).getFullYear(); fibrasPorAno[ano] = (fibrasPorAno[ano] || 0) + 1; });
+  const anosOrdenados = Object.keys(dadosPorAno).sort().reverse();
+  let html = `<h3>📈 Relatório Anual - ${vendedorNome}</h3><table class="report-table"><thead><tr><th>Ano</th><th>Total Chips</th><th>Média Mensal</th><th>Fibras</th></tr></thead><tbody>`;
+  let totalGeral = 0, totalFibras = 0;
+  for (const ano of anosOrdenados) {
+    const total = dadosPorAno[ano];
+    const media = (total / 12).toFixed(1);
+    const fibras = fibrasPorAno[ano] || 0;
+    totalGeral += total;
+    totalFibras += fibras;
+    html += `<tr><td>${ano}</td><td><strong>${total}</strong></td><td>${media}</td><td>${fibras}</td></tr>`;
+  }
+  html += `</tbody><tfoot><tr style="background:#f0fdf4;"><td><strong>TOTAL GERAL</strong></td><td><strong>${totalGeral}</strong></td><td>-</td><td><strong>${totalFibras}</strong></td></tr></tfoot></table>`;
+  document.getElementById('relatorioResultado').innerHTML = html;
+}
+
+// ==================== ADMIN ====================
+function renderAdmin() {
+  const content = document.getElementById('main-content');
+  
+  content.innerHTML = `
+    <div class="card">
+      <h3>👥 Gestão de Funcionários</h3>
+      <input id="funcNome" placeholder="Nome do Funcionário">
+      <input id="funcId" placeholder="ID (ex: pedro)">
+      <input id="funcPin" type="password" placeholder="PIN 4 dígitos" maxlength="4">
+      <button class="btn btn-primary" id="btnAddFuncionario">➕ Adicionar Funcionário</button>
+      <div id="funcList"></div>
+    </div>
+    
+    <div class="card">
+      <h3>⚙️ Configurações de Dias Extras</h3>
+      <div class="checkbox-group">
+        <input type="checkbox" id="ativarDiasExtras" ${CONFIGURACOES.ativarDiasExtras ? 'checked' : ''}>
+        <label>Ativar cálculo de dias extras</label>
+      </div>
+      <div class="row-2cols" style="margin-top:12px;">
+        <div>
+          <label>Salário Base (€)</label>
+          <input type="number" id="salarioBase" value="${CONFIGURACOES.salarioBase}" step="10">
+        </div>
+        <div>
+          <label>Dias Obrigatórios</label>
+          <input type="number" id="diasObrigatorios" value="${CONFIGURACOES.diasObrigatorios}" step="1">
+        </div>
+      </div>
+      <div style="margin-top:12px; padding:12px; background:#f0fdf4; border-radius:12px;">
+        <strong>📊 Cálculo automático:</strong><br>
+        Valor da diária = €${CONFIGURACOES.salarioBase} ÷ ${CONFIGURACOES.diasObrigatorios} = <strong style="color:#25D366;">€${(CONFIGURACOES.salarioBase / CONFIGURACOES.diasObrigatorios).toFixed(2)}</strong> por dia extra
+      </div>
+      <button class="btn btn-primary" id="btnSalvarConfigDias" style="margin-top:12px;">💾 Salvar Configurações</button>
+    </div>
+    
+    <div class="card">
+      <h3>🎯 Configuração de Metas de Fibra</h3>
+      <div class="meta-config">
+        <label>🎁 Meta 1</label>
+        <div class="row-2cols">
+          <input type="number" id="meta11Fibras" value="${CONFIGURACOES.bonusFibra.meta11.fibras}" placeholder="Quantidade de fibras">
+          <input type="number" id="meta11Bonus" value="${CONFIGURACOES.bonusFibra.meta11.bonus}" placeholder="Bónus base (€)">
+        </div>
+        <div class="checkbox-group">
+          <input type="checkbox" id="meta11Ativo" ${CONFIGURACOES.bonusFibra.meta11.ativo ? 'checked' : ''}>
+          <label>Ativar esta meta</label>
+        </div>
+      </div>
+      
+      <div class="meta-config">
+        <label>🎁 Meta 2</label>
+        <div class="row-2cols">
+          <input type="number" id="meta20Fibras" value="${CONFIGURACOES.bonusFibra.meta20.fibras}" placeholder="Quantidade de fibras">
+          <input type="number" id="meta20Bonus" value="${CONFIGURACOES.bonusFibra.meta20.bonus}" placeholder="Bónus base (€)">
+        </div>
+        <div class="checkbox-group">
+          <input type="checkbox" id="meta20Ativo" ${CONFIGURACOES.bonusFibra.meta20.ativo ? 'checked' : ''}>
+          <label>Ativar esta meta</label>
+        </div>
+      </div>
+      
+      <label>💰 Comissão por chip vendido (€)</label>
+      <input type="number" id="comissaoChip" value="${CONFIGURACOES.comissaoChip}" step="0.50">
+      
+      <label>📲 Comissão por app instalado (€)</label>
+      <input type="number" id="comissaoApp" value="${CONFIGURACOES.comissaoApp}" step="0.50">
+      
+      <button class="btn btn-primary" id="btnSalvarMetas">💾 Salvar Configurações</button>
+    </div>
+    
+    <div class="card">
+      <h3>⚙️ Comissão por Pacote de Fibra</h3>
+      <div class="row-2cols">
+        <div><label>P1:</label><input type="number" id="comissaoP1" value="${COMISSAO_PACOTE.P1}" step="1"></div>
+        <div><label>P2:</label><input type="number" id="comissaoP2" value="${COMISSAO_PACOTE.P2}" step="1"></div>
+        <div><label>P3:</label><input type="number" id="comissaoP3" value="${COMISSAO_PACOTE.P3}" step="1"></div>
+      </div>
+      <button class="btn btn-primary" id="btnSalvarComissoesPacote">💾 Salvar Comissões</button>
+    </div>
+    
+    <div class="card">
+      <h3>📊 Tabela de Percentagens - Salário Base</h3>
+      <div id="tabelaEditavelAdmin"></div>
+      <button class="btn btn-primary" id="btnSalvarPercentagensAdmin">💾 Salvar Tabela</button>
+    </div>
+    
+    <div class="card">
+      <h3>📊 Desempenho por Funcionário</h3>
+      <div id="desempenhoFuncionarios"></div>
+    </div>
+  `;
+  
+  // Carregar tabela de percentagens
+  const tabelaDiv = document.getElementById('tabelaEditavelAdmin');
+  if (tabelaDiv) {
+    let tabelaHtml = '';
+    CONFIGURACOES.percentagensSalario.forEach((nivel, index) => {
+      tabelaHtml += `
+        <div class="row-2cols" style="margin-top:8px;">
+          <input type="number" id="adminMin${index}" value="${nivel.min}" placeholder="Mín %">
+          <input type="number" id="adminMax${index}" value="${nivel.max}" placeholder="Máx %">
+          <input type="number" id="adminSal${index}" value="${nivel.salario}" placeholder="Salário €">
+        </div>
+      `;
+    });
+    tabelaDiv.innerHTML = tabelaHtml;
+  }
+  
+  carregarListaFuncionarios();
+  carregarDesempenho();
+  
+  document.getElementById('btnAddFuncionario').onclick = () => {
+    const nome = document.getElementById('funcNome').value;
+    const id = document.getElementById('funcId').value;
+    const pin = document.getElementById('funcPin').value;
+    if (!nome || !id || !pin || pin.length !== 4) { showToast("Preencha todos os campos! PIN 4 dígitos"); return; }
+    if (vendedoresList[id]) { showToast("ID já existe!"); return; }
+    vendedoresList[id] = { id, nome, pin, tipo: 'vendedor', ativo: true };
+    salvarDados();
+    showToast(`✅ ${nome} adicionado!`);
+    document.getElementById('funcNome').value = '';
+    document.getElementById('funcId').value = '';
+    document.getElementById('funcPin').value = '';
+    renderAdmin();
+  };
+  
+  document.getElementById('btnSalvarConfigDias').onclick = () => {
+    CONFIGURACOES.salarioBase = Number(document.getElementById('salarioBase').value);
+    CONFIGURACOES.diasObrigatorios = Number(document.getElementById('diasObrigatorios').value);
+    CONFIGURACOES.ativarDiasExtras = document.getElementById('ativarDiasExtras').checked;
+    salvarDados();
+    showToast("✅ Configurações de dias extras salvas!");
+    if (document.getElementById('navDash')) document.getElementById('navDash').click();
+  };
+  
+  document.getElementById('btnSalvarMetas').onclick = () => {
+    CONFIGURACOES.bonusFibra.meta11.fibras = Number(document.getElementById('meta11Fibras').value);
+    CONFIGURACOES.bonusFibra.meta11.bonus = Number(document.getElementById('meta11Bonus').value);
+    CONFIGURACOES.bonusFibra.meta11.ativo = document.getElementById('meta11Ativo').checked;
+    CONFIGURACOES.bonusFibra.meta20.fibras = Number(document.getElementById('meta20Fibras').value);
+    CONFIGURACOES.bonusFibra.meta20.bonus = Number(document.getElementById('meta20Bonus').value);
+    CONFIGURACOES.bonusFibra.meta20.ativo = document.getElementById('meta20Ativo').checked;
+    CONFIGURACOES.comissaoChip = Number(document.getElementById('comissaoChip').value);
+    CONFIGURACOES.comissaoApp = Number(document.getElementById('comissaoApp').value);
+    salvarDados();
+    showToast("✅ Configurações de metas salvas!");
+    if (document.getElementById('navDash')) document.getElementById('navDash').click();
+  };
+  
+  document.getElementById('btnSalvarComissoesPacote').onclick = () => {
+    COMISSAO_PACOTE.P1 = Number(document.getElementById('comissaoP1').value);
+    COMISSAO_PACOTE.P2 = Number(document.getElementById('comissaoP2').value);
+    COMISSAO_PACOTE.P3 = Number(document.getElementById('comissaoP3').value);
+    salvarDados();
+    showToast("✅ Comissões de pacotes salvas!");
+  };
+  
+  document.getElementById('btnSalvarPercentagensAdmin').onclick = () => {
+    const novas = [];
+    for (let i = 0; i < CONFIGURACOES.percentagensSalario.length; i++) {
+      const min = document.getElementById(`adminMin${i}`)?.value;
+      const max = document.getElementById(`adminMax${i}`)?.value;
+      const sal = document.getElementById(`adminSal${i}`)?.value;
+      if (min !== undefined) novas.push({ min: Number(min), max: Number(max), salario: Number(sal) });
+    }
+    CONFIGURACOES.percentagensSalario = novas.sort((a,b) => a.min - b.min);
+    salvarDados();
+    showToast("✅ Tabela de percentagens salva!");
+    if (document.getElementById('navDash')) document.getElementById('navDash').click();
+  };
+}
+
+function carregarListaFuncionarios() {
+  const funcList = document.getElementById('funcList');
+  if (!funcList) return;
+  const funcionarios = Object.values(vendedoresList).filter(v => v.id !== 'admin');
+  if (funcionarios.length === 0) {
+    funcList.innerHTML = '<div style="padding:20px;text-align:center;">Nenhum funcionário cadastrado</div>';
+  } else {
+    funcList.innerHTML = funcionarios.map(f => `
+      <div class="funcionario-card">
+        <div><strong>${f.nome}</strong> (${f.id})</div>
+        <div>🔑 PIN: ${f.pin}</div>
+        <div class="action-buttons">
+          <button class="btn-primary btn-small" onclick="editarPinFuncionario('${f.id}','${f.nome}','${f.pin}')">✏️ Editar PIN</button>
+          <button class="btn-warning btn-small" onclick="toggleFuncionarioStatus('${f.id}',${!f.ativo})">${f.ativo !== false ? '🔴 Desativar' : '🟢 Ativar'}</button>
+          <button class="btn-danger btn-small" onclick="excluirFuncionario('${f.id}')">🗑️ Excluir</button>
+        </div>
+      </div>
+    `).join('');
+  }
+}
+
+function carregarDesempenho() {
+  const div = document.getElementById('desempenhoFuncionarios');
+  if (!div) return;
+  const now = new Date();
+  const mesAtual = now.getMonth();
+  const anoAtual = now.getFullYear();
+  const desempenho = [];
+  Object.values(vendedoresList).filter(v => v.id !== 'admin' && v.ativo !== false).forEach(v => {
+    let chips = 0, apps = 0, fibras = 0;
+    vendasList.forEach(venda => {
+      if (venda.vendedor === v.id) {
+        const data = new Date(venda.dataCompleta);
+        if (data.getMonth() === mesAtual && data.getFullYear() === anoAtual) {
+          chips += venda.quantidade;
+          if (venda.appInstalado) apps += venda.quantidade;
+        }
+      }
+    });
+    fibraList.forEach(f => { if (f.vendedor === v.id && f.status === 'Instalado') fibras++; });
+    desempenho.push({ nome: v.nome, id: v.id, chips, apps, fibras });
+  });
+  desempenho.sort((a,b) => b.chips - a.chips);
+  div.innerHTML = `<table class="report-table"><thead><tr><th>Funcionário</th><th>Chips</th><th>Apps</th><th>Fibras</th><th>Status</th></td></thead><tbody>${desempenho.map(d => `<tr><td>👤 ${d.nome}</td><td><strong>${d.chips}</strong></td><td>${d.apps}</td><td>${d.fibras}</td><td>${d.chips > 0 ? '🟢 Ativo' : '🟡 Sem vendas'}</tr>`).join('')}</tbody></table>`;
+}
+
+window.editarPinFuncionario = function(id, nome, pinAtual) {
+  const novoPin = prompt(`Novo PIN para ${nome}:`, pinAtual);
+  if (novoPin && novoPin.length === 4) {
+    vendedoresList[id].pin = novoPin;
+    salvarDados();
+    showToast("PIN alterado!");
+    renderAdmin();
+  } else if (novoPin) showToast("PIN deve ter 4 dígitos!");
+};
+
+window.toggleFuncionarioStatus = function(id, ativar) {
+  vendedoresList[id].ativo = ativar;
+  salvarDados();
+  showToast(ativar ? "Funcionário ativado!" : "Funcionário desativado!");
+  renderAdmin();
+};
+
+window.excluirFuncionario = function(id) {
+  if (confirm("Excluir funcionário?")) {
+    delete vendedoresList[id];
+    salvarDados();
+    showToast("Funcionário excluído!");
+    renderAdmin();
+  }
+};
+
+// ==================== LOGIN ====================
+let pendingUser = null;
+
+function showPinModal(userId, userNome) {
+  pendingUser = { id: userId, nome: userNome };
+  const modal = document.createElement('div');
+  modal.className = 'pin-modal';
+  modal.innerHTML = `
+    <div class="pin-modal-content">
+      <h3>🔐 ${userNome}</h3>
+      <p>Digite o seu PIN de 4 dígitos</p>
+      <input type="password" id="pinModalInput" class="pin-modal-input" placeholder="****" maxlength="4" autofocus>
+      <div class="pin-modal-buttons">
+        <button class="pin-cancel" id="btnPinCancel">Cancelar</button>
+        <button class="pin-confirm" id="btnPinConfirm">Entrar</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  
+  const input = document.getElementById('pinModalInput');
+  if (input) {
+    input.focus();
+    input.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') confirmarPin();
+    });
+  }
+  
+  document.getElementById('btnPinCancel').onclick = () => {
+    modal.remove();
+    pendingUser = null;
+  };
+  
+  document.getElementById('btnPinConfirm').onclick = () => confirmarPin();
+}
+
+function confirmarPin() {
+  const pin = document.getElementById('pinModalInput')?.value;
+  if (!pendingUser) return;
+  const user = vendedoresList[pendingUser.id];
+  if (user && user.pin === pin) {
+    document.querySelector('.pin-modal')?.remove();
+    currentUser = user;
+    showToast(`✅ Bem-vindo, ${user.nome}!`);
+    renderApp();
+  } else {
+    const modalContent = document.querySelector('.pin-modal-content');
+    if (modalContent) {
+      modalContent.classList.add('shake');
+      setTimeout(() => modalContent.classList.remove('shake'), 300);
+    }
+    showToast("❌ PIN incorreto! Tente novamente.");
+    const input = document.getElementById('pinModalInput');
+    if (input) {
+      input.value = '';
+      input.focus();
+    }
+  }
+}
+
+function showLogin() {
+  const div = document.getElementById('app');
+  let btns = '';
+  
+  const adminUser = Object.values(vendedoresList).find(v => v.tipo === 'admin' && v.ativo !== false);
+  const vendedores = Object.values(vendedoresList).filter(v => v.tipo !== 'admin' && v.ativo !== false);
+  
+  if (adminUser) {
+    btns += `
+      <button class="vendedor-btn" onclick="showPinModal('${adminUser.id}', '${adminUser.nome}')">
+        <div class="vendedor-avatar">
+          <span>👑</span>
+          <span>${adminUser.nome}</span>
+        </div>
+      </button>
+    `;
+  }
+  vendedores.forEach(v => {
+    btns += `
+      <button class="vendedor-btn" onclick="showPinModal('${v.id}', '${v.nome}')">
+        <div class="vendedor-avatar">
+          <span>👤</span>
+          <span>${v.nome}</span>
+        </div>
+      </button>
+    `;
+  });
+  
+  div.innerHTML = `
+    <div class="login-screen">
+      <div class="login-container">
+        <div class="login-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5">
+            <path d="M3 13H8L10 8L14 16L16 11L21 13" stroke-linecap="round"/>
+            <path d="M12 3L12 21"/>
+            <path d="M5 7L8 10"/>
+            <path d="M19 7L16 10"/>
+            <circle cx="12" cy="12" r="9"/>
+          </svg>
+        </div>
+        <h2>WOO Vendas</h2>
+        <p class="login-subtitle">era que faltava</p>
+        <div class="vendedor-grid">
+          ${btns}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function logout() {
+  currentUser = null;
+  showLogin();
+}
+
+function renderApp() {
+  const div = document.getElementById('app');
+  div.innerHTML = `
+    <header>
+      <div class="current-user">${currentUser.id === 'admin' ? '👑' : '👤'} ${currentUser.nome}${currentUser.tipo === 'admin' ? ' <span style="background:#EEC300;padding:2px 6px;border-radius:10px;font-size:10px;">Admin</span>' : ''}</div>
+      <button class="switch-user-btn" onclick="logout()">🔄 Trocar Vendedor</button>
+    </header>
+    <nav>
+      <button id="navDash">📊 Dashboard</button>
+      <button id="navVendas">📱 Vendas</button>
+      <button id="navFibra">🌐 Fibra</button>
+      <button id="navRegioes">📍 Regiões</button>
+      ${currentUser.tipo === 'admin' ? '<button id="navRelatorios">📈 Relatórios</button>' : ''}
+      ${currentUser.tipo === 'admin' ? '<button id="navAdmin">⚙️ Admin</button>' : ''}
+    </nav>
+    <div id="main-content"></div>
+  `;
+  
+  document.getElementById('navDash').onclick = () => showTab('dashboard');
+  document.getElementById('navVendas').onclick = () => showTab('vendas');
+  document.getElementById('navFibra').onclick = () => showTab('fibra');
+  document.getElementById('navRegioes').onclick = () => showTab('regioes');
+  if (currentUser.tipo === 'admin') {
+    document.getElementById('navRelatorios').onclick = () => showTab('relatorios');
+    document.getElementById('navAdmin').onclick = () => showTab('admin');
+  }
+  showTab('dashboard');
+}
+
+function showTab(tab) {
+  const navDash = document.getElementById('navDash');
+  const navVendas = document.getElementById('navVendas');
+  const navFibra = document.getElementById('navFibra');
+  const navRegioes = document.getElementById('navRegioes');
+  const navRelatorios = document.getElementById('navRelatorios');
+  const navAdmin = document.getElementById('navAdmin');
+  
+  if (navDash) navDash.classList.remove('active');
+  if (navVendas) navVendas.classList.remove('active');
+  if (navFibra) navFibra.classList.remove('active');
+  if (navRegioes) navRegioes.classList.remove('active');
+  if (navRelatorios) navRelatorios.classList.remove('active');
+  if (navAdmin) navAdmin.classList.remove('active');
+  
+  if (tab === 'dashboard') { if (navDash) navDash.classList.add('active'); renderDashboard(); }
+  else if (tab === 'vendas') { if (navVendas) navVendas.classList.add('active'); renderVendas(); }
+  else if (tab === 'fibra') { if (navFibra) navFibra.classList.add('active'); renderFibra(); }
+  else if (tab === 'regioes') { if (navRegioes) navRegioes.classList.add('active'); renderRegioes(); }
+  else if (tab === 'relatorios') { if (navRelatorios) navRelatorios.classList.add('active'); renderRelatorios(); }
+  else if (tab === 'admin') { if (navAdmin) navAdmin.classList.add('active'); renderAdmin(); }
+}
+
+// Iniciar aplicação
+showLogin();
+</script>
+</body>
+</html>
